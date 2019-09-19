@@ -1,23 +1,10 @@
 from flask import Flask
-from flask import Flask, flash, redirect, render_template, request, session, abort
+from flask import Flask, flash, redirect, render_template, request, Response, session, abort
 from flask_caching import Cache
 import os
 
 app = Flask(__name__)
 cache = Cache(app)
-
-@app.route("/login", methods=['GET','POST'])
-def login():
-    if request.method == 'POST':
-        if request.form['username'] == 'admin' or request.form['password'] == 'admin':
-            session['logged_in'] = False
-        else:
-            flash("Wrong Username or Password")
-    return render_template('home.html')
-
-@app.route("/register")
-def register():
-    return render_template("register.html")
 
 @app.route("/")
 def home():
@@ -26,10 +13,27 @@ def home():
     else:
         return render_template("home.html")
 
+
+@app.route("/login", methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        if request.form['action'] == 'Login':
+            if request.form['username'] == 'admin' or request.form['password'] == 'admin':
+                session['logged_in'] = True
+            else:
+                flash("Wrong Username or Password")
+            return home()
+        if request.form['action'] == 'Register':
+            return register()
+@app.route("/register")
+def register():
+    return render_template("register.html")
+
+
 @app.route("/logout")
 def logout():
     session['logged_in'] = False
-    return render_template("login.html")
+    return home()
 
     
 if __name__ == "__main__":
