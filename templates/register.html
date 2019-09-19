@@ -1,11 +1,46 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <title>Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/css/register.css" type="text/css">
+    <title>register</title>
   </head>
   <body>
-    <h1> Register Here! </h1>
-    <p> Please enter name and email! </p>
+    <div class="container">
+    <form action="/register" method="POST">
+        <div class="register">
+            <div class="register-screen">
+                <div class="app-title">
+                    <h1>Register</h1>
+                </div>
+                <div class="register-form">
+                    <div class="control-group">
+                        <input type="text" class="register-field" value="" placeholder="Username" name="username">
+                        <label class="register-field-icon fui-user" for="register-name"></label>
+                    </div>
+                    <div class="control-group">
+                        <input type="password" class="register-field" value="" placeholder="Password" name="password">
+                        <label class="register-field-icon fui-lock" for="register-pass"></label>
+                    </div>
+                    <div class="control-group">
+                        <input type="text" class="register-field" value="" placeholder="First Name" name="firstname">
+                        <label class="register-field-icon fui-user" for="register-name"></label>
+                    </div>
+                    <div class="control-group">
+                        <input type="text" class="register-field" value="" placeholder="Last Name" name="lastname">
+                        <label class="register-field-icon fui-lock" for="register-pass"></label>
+                    </div>
+                    <div class="control-group">
+                        <input type="text" class="register-field" value="" placeholder="Email Address" name="email">
+                        <label class="register-field-icon fui-lock" for="register-pass"></label>
+                    </div>
+                    <div class="control-group">
+                        <input class="btn tn-register" name="action" type="submit" value="Submit">
+                    </div>  
+                </div> 
+            </div>
+        </div> 
+    </form>
+    </div>
   </body>
 </html>

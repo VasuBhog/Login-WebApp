@@ -1,12 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/css/home.css" type="text/css">
+    <title>home</title>
   </head>
   <body>
-    <h1> Welcome </h1>
-    <p> Hello! THIS IS THE HOME PAGE</p>
-    <a href="/login">Logout</a>
-  </body>
+    <div class="container">
+    <form action="/home" method="POST">
+        <div class="home">
+            <div class="home-screen">
+                <div class="app-title">
+                    <h1>Homepage</h1>
+                </div>
+                
+                <div class="control-group">
+                        <input class="btn tn-register" name="action" type="submit" value="Logout">
+                </div>  
+            </div>
+        </div>
+    </form>
+    </div>
+ </body>
 </html>

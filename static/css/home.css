@@ -1,0 +1,45 @@
+* {
+    box-sizing: border-box;
+}
+
+*:focus {
+    outline: none;
+}
+
+body {
+    font-family: Arial;
+    background-color: #3498DB;
+    padding: 50px;
+}
+
+
+.control-group {
+    margin-bottom: 10px;
+}
+
+
+.btn{
+    border: 2px solid transparent;
+    background: black;
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 25px;
+    padding: 10px 0;
+    text-decoration: none;
+    text-shadow: none;
+    border-radius: 3px;
+    box-shadow: none;
+    transition: 0.25s;
+    display: block;
+    width: 250px;
+    margin-top: 0 auto;
+}
+
+.btn-home{
+    margin-top: 10px;
+}
+
+
+.btn:hover {
+background-color: #2980B9;
+}
