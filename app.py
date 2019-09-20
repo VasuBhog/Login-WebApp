@@ -27,28 +27,31 @@ def index():
 @app.route("/home",methods=['GET','POST'])
 def home():
     msg =''
+    print("User logged in:")
     print(session.get('logged_in'))
     #Checks Logged in session
     if not session.get('logged_in'):
         return render_template('login.html')
     #logged in or registered
     else:
-        if request.method == 'POST' and 'username' in session:
-            print("START SESSION")
-            username = session['username']
-            password = session['password']
+        print("Logged In")
+        username = session['username']
+        password = session['password']
+        print(username)
+        if 'logged_in' == True:
+            ("Start")
             cursor.execute(user_query, (username, password))
             account = cursor.fetchone()
             if account:
-                print("2")
                 username = account[0]
                 password = account[1]
                 firstname = account[2]
                 lastname = account[3]
                 email = account[4]
+                print(username,password,firstname,lastname,email)
                 return render_template("home.html",firstname=firstname,lastname=lastname,email=email)
-        elif request.form['action'] == 'Logout':
-            print("LOGGOUTTT")
+        elif request.method == 'POST' and request.form['action'] == 'Logout':
+            print("User Logout")
             close_session()
             session['logged_in'] = False
             session.pop('logged_in',None)
