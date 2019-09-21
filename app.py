@@ -29,6 +29,14 @@ def home():
     msg =''
     print("User logged in:")
     print(session.get('logged_in'))
+
+    if request.method == 'POST' and request.form['action'] == 'Logout':
+        print("User Logout")
+        close_session()
+        session['logged_in'] = False
+        msg="You have been logged out"
+        return render_template("login.html",msg=msg)
+
     #Checks Logged in session
     if not session.get('logged_in'):
         return render_template('login.html')
@@ -37,29 +45,17 @@ def home():
         print("Logged In")
         username = session['username']
         password = session['password']
-        print(username)
-        if 'logged_in' == True:
-            ("Start")
-            cursor.execute(user_query, (username, password))
-            account = cursor.fetchone()
-            if account:
-                username = account[0]
-                password = account[1]
-                firstname = account[2]
-                lastname = account[3]
-                email = account[4]
-                print(username,password,firstname,lastname,email)
-                return render_template("home.html",firstname=firstname,lastname=lastname,email=email)
-        elif request.method == 'POST' and request.form['action'] == 'Logout':
-            print("User Logout")
-            close_session()
-            session['logged_in'] = False
-            session.pop('logged_in',None)
-            session.pop('username',None)
-            session.pop('password',None)
-            msg="You have been logged out"
-            return render_template("login.html",msg=msg)
-        return render_template("home.html", firstname = session['firstname'], lastname = session['lastname'], email = session['email'])
+        cursor.execute(user_query, (username, password))
+        account = cursor.fetchone()
+        if account:
+            username = account[0]
+            password = account[1]
+            firstname = account[2]
+            lastname = account[3]
+            email = account[4]
+            print("ACCOUNT:")
+            print(username,password,firstname,lastname,email)
+            return render_template("home.html",firstname=firstname,lastname=lastname,email=email)
     return home()
 
 # @app.route("/logout",methods=["GET"])
@@ -89,11 +85,13 @@ def login():
             session['username'] = username
             session['password'] = password
             session['logged_in'] = True
+            print("user" + username)
+            print(password)
             return home()
         else:
             print("TESTSETSETSTTSETESTSE")
             msg = 'Incorrect Username/Password'
-            session['logged_in'] = True
+            session['logged_in'] = False
             render_template('login.html',msg=msg)
     if request.method == 'POST' and request.form['action'] == 'Register':
         return render_template("register.html")
