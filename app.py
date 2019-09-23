@@ -26,22 +26,15 @@ conn = engine.connect()
 #Queries
 user_query = ('SELECT * FROM user WHERE username = %s AND password = %s')
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 #Reroutes to home authentication
 @app.route("/")
 def index():
     return home()
 
-def numWords(file):
-    num = 0
-    with open(file,'r+') as f:
-        for line in f:
-            words = line.split()
-            num += len(words)
-        return num
+@app.route("/download")
+def download(returnfile):
+    return Response(returnfile,mimetype="text/plain",headers={"Content-Disposition":
+                    "attachment;filename=Download.txt"})
 
 #HomePage
 #Starts here with checking if user logs in
@@ -66,25 +59,20 @@ def home():
         
         file = request.files.get('file')
         content = file.read()
-        file.close()
-
         filecontent = content.decode("utf-8")
         num = filecontent.split()
         wordcount = len(num)
-        insert_file(username,filecontent)
-
-        print(username)
-        print(wordcount)
-        session['filecontent'] = wordcount
-        session['wordcount'] = wordcount
-        insert_wordcount(username,wordcount)
         filename = secure_filename(file.filename)
         msg = filename
 
+        #insert file query
+        update_file(username,filecontent)
+        session['filecontent'] = filecontent
+        session['wordcount'] = wordcount
+        #insert wordcount query
+        update_wordcount(username,wordcount)
+        
         if file:
-            #saves in temp directory
-            # os.makedirs(os.path.join(app.instance_path, 'uploads'), exist_ok=True)
-            # filepath = file.save(os.path.join(app.instance_path,'uploads',filename))
             cursor.execute(user_query, (username, password))
             account = cursor.fetchone()
             print(account)
@@ -96,8 +84,15 @@ def home():
                 email = account[4]
                 file = session['filecontent']
                 wordcount = session['wordcount']
+                print(file)
+                print(wordcount)
+                newfile = open(filename,'w+')
+                returnfile = newfile.write(file)
+                #create new file
+                download(returnfile)
+                
                 #inserts word count to database
-                return render_template("home.html",firstname=firstname,lastname=lastname,email=email,msg=msg,file=file,wordcount=wordcount)
+                return render_template("home.html",firstname=firstname,lastname=lastname,email=email,file=file,wordcount=wordcount)
     
     #Checks Logged in session
     if not session.get('logged_in'):
@@ -133,9 +128,14 @@ def login():
     msg = ''
     """ GET - display
         POST - login """
+    if request.method == 'POST' and request.form['action'] == 'Register':
+        return render_template("register.html")
+
     if request.form["username"] == '' or request.form['password'] == '' and request.form['action'] == 'Login':
         msg = "Please enter Username and Password"
         return render_template('login.html',msg=msg)
+    
+    
 
     if request.method == 'POST' and request.form['action'] == 'Login' and 'username' in request.form and 'password' in request.form:
         userdetails = request.form
@@ -155,8 +155,7 @@ def login():
             msg = 'Incorrect Username/Password'
             session['logged_in'] = False
             return render_template('login.html',msg=msg)
-    if request.method == 'POST' and request.form['action'] == 'Register':
-        return render_template("register.html")
+    
 
 #Registration Form
 @app.route("/register",methods=['GET','POST'])
@@ -195,15 +194,16 @@ def insert_user(username, password, firstname,lastname,email):
     mydb.commit()
     # cursor.close()
 
-def insert_wordcount(username, wordcount):
+
+def update_wordcount(username, wordcount):
     query = "UPDATE user SET wordcount = %s WHERE username = %s"
-    args = (username, wordcount)
+    args = (wordcount, username)
     cursor.execute(query,args)
     mydb.commit()
 
-def insert_file(username, content):
+def update_file(username, content):
     query = "UPDATE user SET file = %s WHERE username = %s"
-    args = (username, content)
+    args = (content, username)
     cursor.execute(query,args)
     mydb.commit()
 
