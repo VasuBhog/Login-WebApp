@@ -11,3 +11,5 @@ SQLALCHEMY_POOL_RECYCLE = 3600
 
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'dsaf0897sfdg45sfdgfdsaqzdf98sdf0a'
+
+/Users/vasubhog/Login-WebApp/instance/uploads/test.txt
