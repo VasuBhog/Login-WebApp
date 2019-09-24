@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, Response, session, url_for, abort
+from flask import Flask, flash, redirect, render_template, request, Response, session, url_for, send_file
 # from sqlalchemy import create_engine
 # from flask_login import LoginManager, user_loaded_from_header
 import mysql.connector 
@@ -36,7 +36,8 @@ def home():
     msg =''
     print("User logged in:")
     print(session.get('logged_in'))
-    #Logout
+
+    #Download
     if request.method == 'POST' and request.form['action'] == 'Download':
         username = session['username']
         password = session['password']
@@ -46,21 +47,28 @@ def home():
         # cursor.execute(query,(username))
         # print("sql run")
         result = cursor.fetchone()
-        print(result)
-        print("get download")
         if result:
-            file = result[5]
-            print(file)
-            newfile = open('Download.txt','w+')
-            returnfile = newfile.write(file)
-            print(returnfile)
-            session['returnfile'] = returnfile
-            return Response(returnfile,mimetype="text/plain",headers={"Content-Disposition":
-                    'attachment;filename="%s"' % returnfile})
+            filename = result[5]
+            filecontent = result[6]
+            print("Filename: " + filename)
+            print("Filecontent: " + filecontent)
+            #Create new file
+            newfile = open(filename,'w') 
+            newfile.write(filecontent)
+            newfile.close()
+            newfile = open(filename,'r')
+            print("IN FILE")
+            
+            return Response(
+                    newfile,
+                    mimetype="text/csv",
+                    headers={"Content-disposition":
+                    'attachment; filename=test.txt'})
         else:
             print("NOT DOWNLOADING")
             pass
 
+    #USER LOGSOUT
     if request.method == 'POST' and request.form['action'] == 'Logout':
         print("User Logout")
         close_session()
@@ -68,7 +76,7 @@ def home():
         msg="You have been logged out"
         return render_template("login.html",msg=msg)
 
-    #UPLOAD FILES
+    #UPLOAD FILE button pressed
     if request.method == 'POST' and request.form['action'] == 'Upload':
         username = session['username']
         password = session['password']
@@ -77,10 +85,13 @@ def home():
         file = request.files.get('file')
         content = file.read()
         filecontent = content.decode("utf-8")
+        #Calculate num words
         num = filecontent.split()
         wordcount = len(num)
         filename = secure_filename(file.filename)
-        session['filename'] = filename  
+
+        #insert filename query
+        update_filename(username,filename)
 
         #insert file query
         update_file(username,filecontent)
@@ -88,9 +99,11 @@ def home():
         #insert wordcount query
         update_wordcount(username,wordcount)
 
+        session['filename'] = filename
         session['filecontent'] = filecontent
         session['wordcount'] = wordcount
         
+        #FILE EXISTS then output session upload to homepage
         if file:
             cursor.execute(user_query, (username, password))
             account = cursor.fetchone()
@@ -101,8 +114,9 @@ def home():
                 firstname = account[2]
                 lastname = account[3]
                 email = account[4]
-                file = session['filename']
+                filecontent = session['filecontent']
                 wordcount = session['wordcount']
+                filename = session['filename']
                 print(file)
                 print(wordcount)
                 #create download link
@@ -111,13 +125,14 @@ def home():
                 session['returnfile'] = returnfile
                 
                 #inserts word count to database
-                return render_template("home.html",firstname=firstname,lastname=lastname,email=email,file=file,wordcount=wordcount)
+                return render_template("home.html",firstname=firstname,lastname=lastname,email=email,filename=filename,file=filecontent,wordcount=wordcount)
     
     #Checks Logged in session
     if not session.get('logged_in'):
         return render_template('login.html')
-    #logged in or registered
+    #When user logs in
     else:
+        #WHEN USER LOGS BACK IN FRESH SESSION
         print("Logged In")
         username = session['username']
         password = session['password']
@@ -129,11 +144,12 @@ def home():
             firstname = account[2]
             lastname = account[3]
             email = account[4]
-            file = account[5]
-            wordcount = account[6]
+            filename = account[5]
+            filecontent = account[6]
+            wordcount = account[7]
             print("ACCOUNT:")
             print(username,password,firstname,lastname,email)
-            return render_template("home.html",firstname=firstname,lastname=lastname,email=email,wordcount=wordcount)
+            return render_template("home.html",firstname=firstname,lastname=lastname,email=email,filename=filename,file=filecontent,wordcount=wordcount)
     return home()
         
 
@@ -160,7 +176,7 @@ def login():
         userdetails = request.form
         username = userdetails['username']
         password = userdetails['password']
-        args = (username,password)
+        args = (username, password)
         
         cursor.execute('SELECT * FROM user WHERE username = %s AND password = %s', args)
         account = cursor.fetchone()
@@ -213,6 +229,11 @@ def insert_user(username, password, firstname,lastname,email):
     mydb.commit()
     # cursor.close()
 
+def update_filename(username, filename):
+    query = "UPDATE user SET filename = %s WHERE username = %s"
+    args = (filename, username)
+    cursor.execute(query,args)
+    mydb.commit()
 
 def update_wordcount(username, wordcount):
     query = "UPDATE user SET wordcount = %s WHERE username = %s"
@@ -232,5 +253,5 @@ def update_file(username, content):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+    app.run()
 
