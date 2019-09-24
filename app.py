@@ -1,6 +1,4 @@
 from flask import Flask, flash, redirect, render_template, request, Response, session, url_for, send_file
-# from sqlalchemy import create_engine
-# from flask_login import LoginManager, user_loaded_from_header
 import mysql.connector 
 from mysql.connector import errorcode
 from werkzeug.utils import secure_filename
