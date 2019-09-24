@@ -1,5 +1,5 @@
 from flask import Flask, flash, redirect, render_template, request, Response, session, url_for, abort
-from sqlalchemy import create_engine
+# from sqlalchemy import create_engine
 # from flask_login import LoginManager, user_loaded_from_header
 import mysql.connector 
 from mysql.connector import errorcode
@@ -20,9 +20,6 @@ mydb = mysql.connector.connect(host='localhost', user='root',password='cookie123
 mydb.autocommit = True
 cursor = mydb.cursor(buffered=True)
 
-engine = create_engine('mysql+pymysql://root:cookie123@localhost/users')
-conn = engine.connect()
-
 #Queries
 user_query = ('SELECT * FROM user WHERE username = %s AND password = %s')
 
@@ -31,10 +28,6 @@ user_query = ('SELECT * FROM user WHERE username = %s AND password = %s')
 def index():
     return home()
 
-@app.route("/download")
-def download(returnfile):
-    return Response(returnfile,mimetype="text/plain",headers={"Content-Disposition":
-                    "attachment;filename=Download.txt"})
 
 #HomePage
 #Starts here with checking if user logs in
@@ -44,6 +37,30 @@ def home():
     print("User logged in:")
     print(session.get('logged_in'))
     #Logout
+    if request.method == 'POST' and request.form['action'] == 'Download':
+        username = session['username']
+        password = session['password']
+        cursor.execute(user_query, (username, password))
+        print("Downloading file")
+        # query = "SELECT file FROM user WHERE username = '%s'"
+        # cursor.execute(query,(username))
+        # print("sql run")
+        result = cursor.fetchone()
+        print(result)
+        print("get download")
+        if result:
+            file = result[5]
+            print(file)
+            newfile = open('Download.txt','w+')
+            returnfile = newfile.write(file)
+            print(returnfile)
+            session['returnfile'] = returnfile
+            return Response(returnfile,mimetype="text/plain",headers={"Content-Disposition":
+                    'attachment;filename="%s"' % returnfile})
+        else:
+            print("NOT DOWNLOADING")
+            pass
+
     if request.method == 'POST' and request.form['action'] == 'Logout':
         print("User Logout")
         close_session()
@@ -63,14 +80,16 @@ def home():
         num = filecontent.split()
         wordcount = len(num)
         filename = secure_filename(file.filename)
-        msg = filename
+        session['filename'] = filename  
 
         #insert file query
         update_file(username,filecontent)
-        session['filecontent'] = filecontent
-        session['wordcount'] = wordcount
+        
         #insert wordcount query
         update_wordcount(username,wordcount)
+
+        session['filecontent'] = filecontent
+        session['wordcount'] = wordcount
         
         if file:
             cursor.execute(user_query, (username, password))
@@ -82,14 +101,14 @@ def home():
                 firstname = account[2]
                 lastname = account[3]
                 email = account[4]
-                file = session['filecontent']
+                file = session['filename']
                 wordcount = session['wordcount']
                 print(file)
                 print(wordcount)
+                #create download link
                 newfile = open(filename,'w+')
-                returnfile = newfile.write(file)
-                #create new file
-                download(returnfile)
+                returnfile = newfile.write(filecontent)
+                session['returnfile'] = returnfile
                 
                 #inserts word count to database
                 return render_template("home.html",firstname=firstname,lastname=lastname,email=email,file=file,wordcount=wordcount)
@@ -114,7 +133,7 @@ def home():
             wordcount = account[6]
             print("ACCOUNT:")
             print(username,password,firstname,lastname,email)
-            return render_template("home.html",firstname=firstname,lastname=lastname,email=email,file=file,wordcount=wordcount)
+            return render_template("home.html",firstname=firstname,lastname=lastname,email=email,wordcount=wordcount)
     return home()
         
 
@@ -206,6 +225,11 @@ def update_file(username, content):
     args = (content, username)
     cursor.execute(query,args)
     mydb.commit()
+
+# def get_download(username):
+    
+    
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
