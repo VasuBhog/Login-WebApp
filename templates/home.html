@@ -17,14 +17,14 @@
                 <h4> Last Name: {{ lastname }} </h4>
                 <h4> Email: {{ email }} </h4>
                 <h4> FileName: {{ filename }} </h4>
-                <h4> File: {{ file }} </h4>
+                <!-- <h4> File: {{ file }} </h4> -->
                 <h4> File Word Count: {{ wordcount }} </h4>
-                <form method="post" enctype="multipart/form-data">
-                  Choose a txt file: <input type="file" name="file"/>
-                  <br>
-                  <input name='action' type="submit" value="Upload"/>
-                  <br>
-                </form> 
+                <div class="uploadbtn">
+                  <form  method="post" enctype="multipart/form-data">
+                    <h4 class="browse">Choose a txt file: </h4><input type="file" name="file"/>
+                    <input class="up" name='action' type="submit" value="Upload"/>
+                  </form> 
+                </div>
                 <div class="control-group">
                     <a href="/download"> <button name="action" value="Download" class="btn tn-register">Download File</button></a>
                 </div>  

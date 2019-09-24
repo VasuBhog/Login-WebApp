@@ -12,15 +12,47 @@ body {
     padding: 50px;
 }
 
+.home{
+    margin: 20px auto;
+    width: 300px;
+}
+
+.home-screen {
+    background-color: #FFF;
+    padding: 20px;
+    border-radius: 5px
+}
+
+.app-title {
+    text-align: center;
+    color: #777;
+}
 
 .control-group {
     margin-bottom: 10px;
 }
 
+h4{
+    text-align: center;
+}
+
+.uploadbtn {
+    margin: 20px;
+}
+
+h4.browse{
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.up{
+    align-content: center;
+    margin-top: 20px;
+}
 
 .btn{
     border: 2px solid transparent;
-    background: black;
+    background: #3498DB;
     color: #ffffff;
     font-size: 16px;
     line-height: 25px;
@@ -41,5 +73,5 @@ body {
 
 
 .btn:hover {
-    background-color: gray;
+    background-color: #2980B9;
 }

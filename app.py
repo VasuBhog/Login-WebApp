@@ -125,7 +125,7 @@ def home():
                 session['returnfile'] = returnfile
                 
                 #inserts word count to database
-                return render_template("home.html",firstname=firstname,lastname=lastname,email=email,filename=filename,file=filecontent,wordcount=wordcount)
+                return render_template("home.html",firstname=firstname,lastname=lastname,email=email,filename=filename,wordcount=wordcount)
     
     #Checks Logged in session
     if not session.get('logged_in'):
@@ -149,7 +149,7 @@ def home():
             wordcount = account[7]
             print("ACCOUNT:")
             print(username,password,firstname,lastname,email)
-            return render_template("home.html",firstname=firstname,lastname=lastname,email=email,filename=filename,file=filecontent,wordcount=wordcount)
+            return render_template("home.html",firstname=firstname,lastname=lastname,email=email,filename=filename,wordcount=wordcount)
     return home()
         
 
