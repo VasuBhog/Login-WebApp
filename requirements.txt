@@ -1,6 +1,6 @@
 Flask==1.0
 mysql-connector
-Jinja2==2.7.3
+Jinja2==2.11.3
 MarkupSafe==0.23
 PyMySQL==0.6.3
 argparse==1.2.1
